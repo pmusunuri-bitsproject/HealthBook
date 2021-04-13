@@ -1,2 +1,2 @@
 # HealthBook
-EHR System - Bits Project
+EHR System - Bits Project for mtech
