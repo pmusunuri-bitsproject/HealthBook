@@ -18,6 +18,10 @@ class App extends Component {
     showBookAppointment: false,
     showHealthReports: false,
     user: {},
+    data: { 
+      labReports: [],
+      appointments: []
+    }
   };
 
   handleSignOut = () => {
@@ -45,6 +49,7 @@ class App extends Component {
   };
 
   handleHealthBook = () => {
+    this.getAppointments()
     this.setState({
       showProfile: false,
       showAppointments: true,
@@ -63,6 +68,7 @@ class App extends Component {
   };
 
   handleBookAppointment = () => {
+    this.getAppointments()
     this.setState({
       showProfile: false,
       showAppointments: true,
@@ -72,6 +78,7 @@ class App extends Component {
   };
 
   handleOnHealthReports = () => {
+    this.getLabReports()
     this.setState({
       showProfile: false,
       showAppointments: false,
@@ -105,73 +112,31 @@ class App extends Component {
   };
 
   getAppointments = () => {
-    return [
-      {
-        id: "0",
-        datetime: "Mar 24, 2021 at 8:00pm",
-        doctorName: "Dr. Ram",
-        hospitalName: "Dharamshila Narayana Superspeciality Hospital",
-        hospitalAddress:
-          "Metro Station, Dharamshila marg, Vasundhara Enclave Near Ashok Nagar, Dallupura, New Delhi, Delhi 110096",
-        hospitalPhone: "080675 06880",
-      },
-      {
-        id: "1",
-        datetime: "Mar 25, 2021 at 10:00am",
-        doctorName: "Dr. Krishna",
-        hospitalName: "Indraprastha Apollo Hospitals",
-        hospitalAddress:
-          "Indraprastha Apollo Hospital, Mathura Rd, New Delhi, Delhi 110076",
-        hospitalPhone: "011 7179 1090",
-      },
-    ];
+    var requestOptions = {
+      method: 'GET',
+      redirect: 'follow'
+    };
+    fetch("https://healthbook-backend.et.r.appspot.com/user/53ecf50f-4923-5c88-97bd-1f21a744df5c/appointments", requestOptions)
+    .then(response => response.json())
+    .then(result => {
+      this.setState({data:{appointments: result}})
+      console.log(result)
+    })
+    .catch(error => console.log(error))
   };
 
-  getHealthReports = () => {
-    return [
-      {
-        id: "0",
-        datetime: "Mar 24, 2021",
-        type: "GLYCOSYLATED HAEMOGLOBIN",
-        labName: "Dr Lalchandani Labs",
-        labAddress:
-          "M-20, Greater Kailash-1, M Block, Greater Kailash I, Greater Kailash, New Delhi, Delhi 110048",
-        labPhone: "011 4905 7059",
-        refByDoctor: "Dr. Krishna",
-      },
-
-      {
-        id: "1",
-        datetime: "Mar 25, 2021",
-        type: "BLOOD SUGAR ESTIMATION",
-        labName: "Health Screen Pvt. Ltd",
-        labAddress:
-          "E-241/3, Allama Shibli Nomani Road, Shaheen Bagh, Okhla, New Delhi, Delhi 110025",
-        labPhone: "088009 11234",
-        refByDoctor: "Dr. Rama",
-      },
-
-      {
-        id: "2",
-        datetime: "Mar 26, 2021",
-        type: "CARDIAC PROFILE",
-        labName: "Quest Diagnostics Centre Delhi",
-        labAddress:
-          "Diagnostic centre near me Shop No 20A, Kashmiri Market Yusuf Sarai, Near AIIMS, New Delhi, Delhi 110029",
-        labPhone: "099831 55546",
-        refByDoctor: "Dr. Om",
-      },
-
-      {
-        id: "3",
-        datetime: "Mar 27, 2021",
-        type: "HAV- IgM Ab TO HEPATITIS 'A' VIRUS",
-        labName: "Delhi Health Labs",
-        labAddress: "816/7 Govind Puri, Kalkaji, New Delhi, Delhi 110019",
-        labPhone: "079827 99936",
-        refByDoctor: "Dr. Krishna",
-      },
-    ];
+  getLabReports =  () => {
+      var requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+      };
+      fetch("http://localhost:8080/user/53ecf50f-4923-5c88-97bd-1f21a744df5c/healthRecord?type=LAB_REPORT", requestOptions)
+      .then(response => response.json())
+      .then(result => {
+        this.setState({data:{labReports: result}})
+        console.log(result)
+      })
+      .catch(error => console.log(error))
   };
 
   render() {
@@ -202,7 +167,7 @@ class App extends Component {
         ) : null}
         {this.state.showAppointments ? (
           <Appointments
-            appointments={this.getAppointments()}
+            appointments={this.state.data.appointments || []}
             onAddAppointment={this.handleAddAppointment}
           />
         ) : null}
@@ -210,7 +175,7 @@ class App extends Component {
           <BookAppointment onBookAppointment={this.handleBookAppointment} />
         ) : null}
         {this.state.showHealthReports ? (
-          <HealthReports reports={this.getHealthReports()} />
+          <HealthReports reports={this.state.data.labReports||[]} />
         ) : null}
       </React.Fragment>
     );

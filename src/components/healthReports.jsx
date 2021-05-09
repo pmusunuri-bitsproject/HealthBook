@@ -5,7 +5,7 @@ import HealthReportList from "./healthReportList";
 const HealthReports = ({ reports }) => {
   return (
     <React.Fragment>
-      <Header title="Health Reports" />
+      <Header title="Lab Reports" />
       {reports.length > 0 ? (
         <HealthReportList reports={reports} />
       ) : (

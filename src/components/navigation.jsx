@@ -35,7 +35,7 @@ const Navigation = (props) => {
             eventKey="health-reports"
             onClick={props.onHealthReports}
           >
-            Health Reports
+            Lab Reports
           </Nav.Link>
           <Nav.Link href="#signin" eventKey="logout" onClick={props.onSignOut}>
             Logout
