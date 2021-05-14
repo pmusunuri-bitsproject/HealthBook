@@ -31,11 +31,25 @@ const Navigation = (props) => {
             Book Appointment
           </Nav.Link>
           <Nav.Link
-            href="#health-reports"
-            eventKey="health-reports"
-            onClick={props.onHealthReports}
+            href="#lab-reports"
+            eventKey="lab-reports"
+            onClick={props.onLabReports}
           >
             Lab Reports
+          </Nav.Link>
+          <Nav.Link
+            href="#prescription-reports"
+            eventKey="prescription-reports"
+            onClick={props.onPrescriptionReports}
+          >
+            Prescription Reports
+          </Nav.Link>
+          <Nav.Link
+            href="#share-reports"
+            eventKey="share-reports"
+            onClick={props.onShareReports}
+          >
+            Share Reports
           </Nav.Link>
           <Nav.Link href="#signin" eventKey="logout" onClick={props.onSignOut}>
             Logout

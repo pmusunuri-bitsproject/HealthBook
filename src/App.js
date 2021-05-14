@@ -4,10 +4,10 @@ import Appointments from "./components/appointments";
 import BookAppointment from "./components/bookAppointment";
 import UserSignIn from "./components/userSignin";
 import Navigation from "./components/navigation";
-import Profile from "./components/profile";
-import HealthReports from "./components/healthReports";
-//import GoogleSignIn from './components/googleSignIn';
-//import SignInBranding from './components/signinBranding';
+import Profile from "./components/Profile";
+import LabReports from "./components/labReports";
+import PrescriptionReports from "./components/prescriptionReports";
+import ShareReports from "./components/shareReports";
 
 class App extends Component {
   state = {
@@ -16,12 +16,18 @@ class App extends Component {
     showProfile: false,
     showAppointments: false,
     showBookAppointment: false,
-    showHealthReports: false,
+    showLabReports: false,
+    showPrescriptionReports: false,
+    showShareReports: false,
     user: {},
-    data: { 
+    client: {},
+    data: {
       labReports: [],
-      appointments: []
-    }
+      appointments: [],
+      hospitals: [],
+      prescriptionReports: [],
+      knownDoctors: [],
+    },
   };
 
   handleSignOut = () => {
@@ -34,7 +40,9 @@ class App extends Component {
         showProfile: false,
         showAppointments: false,
         showBookAppointment: false,
-        showHealthReports: false,
+        showLabReports: false,
+        showPrescriptionReports: false,
+        showShareReports: false,
       });
     });
   };
@@ -44,17 +52,21 @@ class App extends Component {
       showProfile: true,
       showAppointments: false,
       showBookAppointment: false,
-      showHealthReports: false,
+      showLabReports: false,
+      showPrescriptionReports: false,
+      showShareReports: false,
     });
   };
 
   handleHealthBook = () => {
-    this.getAppointments()
+    this.getAppointments();
     this.setState({
       showProfile: false,
       showAppointments: true,
       showBookAppointment: false,
-      showHealthReports: false,
+      showLabReports: false,
+      showPrescriptionReports: false,
+      showShareReports: false,
     });
   };
 
@@ -63,48 +75,160 @@ class App extends Component {
       showProfile: false,
       showAppointments: false,
       showBookAppointment: true,
-      showHealthReports: false,
+      showLabReports: false,
+      showPrescriptionReports: false,
+      showShareReports: false,
     });
   };
 
   handleBookAppointment = () => {
-    this.getAppointments()
+    this.getAppointments();
     this.setState({
       showProfile: false,
       showAppointments: true,
       showBookAppointment: false,
-      showHealthReports: false,
+      showLabReports: false,
+      showPrescriptionReports: false,
+      showShareReports: false,
     });
   };
 
-  handleOnHealthReports = () => {
-    this.getLabReports()
+  handleOnLabReports = () => {
+    this.getLabReports();
     this.setState({
       showProfile: false,
       showAppointments: false,
       showBookAppointment: false,
-      showHealthReports: true,
+      showLabReports: true,
+      showPrescriptionReports: false,
+      showShareReports: false,
     });
   };
 
+  handleOnPrescriptionReports = () => {
+    this.getPrescriptionReports()
+    this.setState({
+      showProfile: false,
+      showAppointments: false,
+      showBookAppointment: false,
+      showLabReports: false,
+      showPrescriptionReports: true,
+      showShareReports: false,
+    });
+  }
+
   handleOnProfileUpdate = (data) => {
-    console.log("profile data", data);
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    let raw = JSON.stringify({
+      email: this.state.client.email,
+      name: this.state.client.name,
+      contact: data.contact,
+      location: data.location,
+      // dob: this.state.client.dob
+    });
+
+    let requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    fetch("http://services.healthbook.anikumar.net/user/", requestOptions)
+      .then((response) => response.json())
+      .then((user) => {
+        //console.log(user);
+        this.setState({ client: user });
+      })
+      .catch((error) => console.log("error", error));
+
     this.setState({
       showProfile: false,
       showAppointments: true,
       showBookAppointment: false,
+      showPrescriptionReports: false,
+      showShareReports: false,
     });
   };
 
   handleSignInSuccess = (googleUser) => {
-    console.log("Signed in successfully.");
-
     this.setState({
       showUserLogin: false,
       showNavigation: true,
       showAppointments: true,
+      showPrescriptionReports: false,
+      showShareReports: false,
       user: googleUser.getBasicProfile(),
     });
+    this.verifyLoggedInUser();
+  };
+
+  handleShareReports = () => {
+    this.getKnownDoctors();
+    this.setState({
+      showProfile: false,
+      showAppointments: false,
+      showBookAppointment: false,
+      showLabReports: false,
+      showPrescriptionReports: false,
+      showShareReports: true,
+    });
+  }
+
+  handleOnShareReports  = () => {
+    this.setState({
+      showUserLogin: true,
+      showNavigation: false,
+      showProfile: false,
+      showAppointments: false,
+      showBookAppointment: false,
+      showLabReports: false,
+      showPrescriptionReports: false,
+      showShareReports: false,
+    });
+  }
+
+  getKnownDoctors = () => {
+    let requestOptions = {
+      method: 'GET',
+      redirect: 'follow'
+    };
+    
+    fetch(`https://services.healthbook.anikumar.net/user/${this.state.client.id}/referredProviders`, requestOptions)
+      .then(response => response.json())
+      .then(result => {
+        //console.log(result)
+        this.setState({data:{knownDoctors: result.referredProviders}});
+      })
+      .catch(error => console.log('error', error));
+  }
+
+  verifyLoggedInUser = () => {
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    let raw = JSON.stringify({
+      email: this.state.user.getEmail(),
+      name: this.state.user.getName(),
+    });
+
+    let requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    fetch("http://services.healthbook.anikumar.net/user/", requestOptions)
+      .then((response) => response.json())
+      .then((user) => {
+        //console.log(user);
+        this.setState({ client: user });
+        this.getAppointments(user.id);
+      })
+      .catch((error) => console.log("error", error));
   };
 
   handleSignInFailure = (error) => {
@@ -113,31 +237,54 @@ class App extends Component {
 
   getAppointments = () => {
     var requestOptions = {
-      method: 'GET',
-      redirect: 'follow'
+      method: "GET",
+      redirect: "follow",
     };
-    fetch("https://healthbook-backend.et.r.appspot.com/user/53ecf50f-4923-5c88-97bd-1f21a744df5c/appointments", requestOptions)
-    .then(response => response.json())
-    .then(result => {
-      this.setState({data:{appointments: result}})
-      console.log(result)
-    })
-    .catch(error => console.log(error))
+    fetch(
+      `http://services.healthbook.anikumar.net/user/${this.state.client.id}/appointments`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        this.setState({ data: { appointments: result } });
+        //console.log(result)
+      })
+      .catch((error) => console.log(error));
   };
 
-  getLabReports =  () => {
-      var requestOptions = {
-        method: 'GET',
-        redirect: 'follow'
-      };
-      fetch("http://localhost:8080/user/53ecf50f-4923-5c88-97bd-1f21a744df5c/healthRecord?type=LAB_REPORT", requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        this.setState({data:{labReports: result}})
-        console.log(result)
+  getLabReports = () => {
+    let requestOptions = {
+      method: "GET",
+      redirect: "follow",
+    };
+    fetch(
+      `http://services.healthbook.anikumar.net/user/${this.state.client.id}/healthRecord?type=LAB_REPORT`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        this.setState({ data: { labReports: result } });
+        //console.log(result)
       })
-      .catch(error => console.log(error))
+      .catch((error) => console.log(error));
   };
+
+  getPrescriptionReports = () => {
+    let requestOptions = {
+      method: "GET",
+      redirect: "follow",
+    };
+    fetch(
+      `http://services.healthbook.anikumar.net/user/${this.state.client.id}/healthRecord?type=PRESCRIPTION`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        //console.log(result)
+        this.setState({ data: { prescriptionReports: result } });
+      })
+      .catch((error) => console.log(error));
+  }
 
   render() {
     return (
@@ -156,12 +303,14 @@ class App extends Component {
             onHealthBook={this.handleHealthBook}
             onBookAppointment={this.handleAddAppointment}
             onMyAppointments={this.handleHealthBook}
-            onHealthReports={this.handleOnHealthReports}
+            onLabReports={this.handleOnLabReports}
+            onPrescriptionReports={this.handleOnPrescriptionReports}
+            onShareReports={this.handleShareReports}
           />
         ) : null}
         {this.state.showProfile ? (
           <Profile
-            user={this.state.user}
+            user={this.state.client}
             onProfileUpdate={this.handleOnProfileUpdate}
           />
         ) : null}
@@ -172,10 +321,22 @@ class App extends Component {
           />
         ) : null}
         {this.state.showBookAppointment ? (
-          <BookAppointment onBookAppointment={this.handleBookAppointment} />
+          <BookAppointment
+            onBookAppointment={this.handleBookAppointment}
+            client={this.state.client} />
         ) : null}
-        {this.state.showHealthReports ? (
-          <HealthReports reports={this.state.data.labReports||[]} />
+        {this.state.showLabReports ? (
+          <LabReports reports={this.state.data.labReports || []} />
+        ) : null}
+        {this.state.showShareReports ? (
+          <ShareReports 
+            doctors={this.state.data.knownDoctors || []} 
+            onShareReports={this.handleOnShareReports}
+            client={this.state.client}
+          />
+        ) : null}
+        {this.state.showPrescriptionReports ? (
+          <PrescriptionReports reports={this.state.data.prescriptionReports || []} />
         ) : null}
       </React.Fragment>
     );

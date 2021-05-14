@@ -1,11 +1,11 @@
 import React from "react";
 import { Accordion, Container, Card, Button } from "react-bootstrap";
 
-const HealthReportList = ({ reports }) => {
+const LabReportList = ({ reports }) => {
   return (
     <React.Fragment>
       <Container className="mt-3 mb-3">
-        <Accordion defaultActiveKey="0">
+        <Accordion defaultActiveKey={reports[0].id || "0"}>
           {reports.map((rpt) => (
             <Card key={rpt.id}>
               <Card.Header>
@@ -41,4 +41,4 @@ const HealthReportList = ({ reports }) => {
   );
 };
 
-export default HealthReportList;
+export default LabReportList;

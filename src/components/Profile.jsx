@@ -4,8 +4,8 @@ import Header from "./header";
 
 class Profile extends Component {
   state = {
-    phoneValue: "",
-    locationValue: "",
+    phoneValue: this.props.user.contact ,
+    locationValue: this.props.user.location,
   };
 
   handleLocationChange = (e) => {
@@ -23,7 +23,7 @@ class Profile extends Component {
   render() {
     return (
       <React.Fragment>
-        <Header title="Profile" imageUrl={this.props.user.getImageUrl()} />
+        <Header title="Profile" imageUrl={this.props.user.imageUrl} />
         <Container className="mt-5">
           <InputGroup className="mb-3">
             <InputGroup.Prepend>
@@ -32,7 +32,7 @@ class Profile extends Component {
             <FormControl
               className="bg-light text-muted"
               readOnly
-              value={this.props.user.getName()}
+              value={this.props.user.name}
             />
           </InputGroup>
           <InputGroup className="mb-3">
@@ -51,7 +51,7 @@ class Profile extends Component {
             <FormControl
               className="bg-light text-muted"
               readOnly
-              value={this.props.user.getEmail()}
+              value={this.props.user.email}
             />
           </InputGroup>
           <InputGroup className="mb-3">
@@ -67,8 +67,8 @@ class Profile extends Component {
             <Button
               onClick={() => {
                 this.props.onProfileUpdate({
-                  locationValue: this.state.locationValue,
-                  phoneValue: this.state.phoneValue,
+                  location: this.state.locationValue,
+                  contact: this.state.phoneValue,
                 });
               }}
               variant="success"

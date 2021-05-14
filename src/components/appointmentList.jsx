@@ -5,7 +5,7 @@ const AppointmentList = ({ appointments }) => {
   return (
     <React.Fragment>
       <Container className="mb-3">
-        <Accordion defaultActiveKey="0">
+        <Accordion defaultActiveKey={appointments[0].id || "0"}>
           {appointments.map((ap) => (
             <Card key={ap.id}>
               <Card.Header>
